@@ -51,6 +51,20 @@ results = wikidata_client.query("""\
 """)
 ```
 
+Look up an entity by its ORCiD:
+
+```python
+import wikidata_client
+
+>>> wikidata_client.get_entity_by_property("P496", "0000-0003-4423-4370")
+'Q47475003'
+
+# or, for convenience
+
+>>> wikidata_client.get_entity_by_orcid("0000-0003-4423-4370")
+'Q47475003'
+```
+
 ## 🚀 Installation
 
 The most recent release can be installed from
