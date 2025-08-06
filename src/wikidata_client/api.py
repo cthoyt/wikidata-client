@@ -23,6 +23,11 @@ __all__ = [
     "query",
 ]
 
+USER_AGENT = f"{USER_AGENT_NAME} v{get_version()}"
+HEADERS = {
+    "User-Agent": USER_AGENT,
+}
+
 
 def query(
     sparql: str, *, timeout: TimeoutHint = None, endpoint: str | None = None
@@ -34,15 +39,12 @@ def query(
     :param endpoint: The SPARQL service base URL.
     :return: A list of bindings
     """
-    headers = {
-        "User-Agent": f"{USER_AGENT_NAME} v{get_version()}",
-    }
     if timeout is None:
         timeout = 10
     res = requests.get(
         endpoint or WIKIDATA_ENDPOINT,
         params={"query": sparql, "format": "json"},
-        headers=headers,
+        headers=HEADERS,
         timeout=timeout,
     )
     res.raise_for_status()
