@@ -1,6 +1,6 @@
 """Interact with Wikidata programmatically."""
 
-from .api import get_entity_by_property, get_image, query
+from .api import get_entity_by_property, get_image, get_label, query
 from .properties import (
     get_entity_by_arxiv,
     get_entity_by_biorxiv,
@@ -19,5 +19,6 @@ __all__ = [
     "get_entity_by_pubmed",
     "get_entity_by_ror",
     "get_image",
+    "get_label",
     "query",
 ]

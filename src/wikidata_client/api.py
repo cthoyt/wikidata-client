@@ -20,6 +20,7 @@ from .version import get_version
 __all__ = [
     "get_entity_by_property",
     "get_image",
+    "get_label",
     "query",
 ]
 
@@ -118,3 +119,23 @@ def get_image(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = 
     if not records:
         return None
     return cast(str, records[0]["imageLabel"])
+
+
+def get_label(
+    item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None, language: str = "en"
+) -> str | None:
+    """Get the label."""
+    if not WIKIDATA_ITEM_REGEX.match(item):
+        raise ValueError(f"Wikidata item '{item}' is not valid under {WIKIDATA_ITEM_REGEX}.")
+
+    sparql = dedent(f"""\
+        SELECT ?label WHERE {{
+          wd:{item} rdfs:label ?label .
+          FILTER(lang(?label) = '{language}')
+        }}
+        LIMIT 1
+    """)
+    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    if not records:
+        return None
+    return cast(str, records[0]["label"])
