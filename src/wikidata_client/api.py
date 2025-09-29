@@ -139,3 +139,32 @@ def get_label(
     if not records:
         return None
     return cast(str, records[0]["label"])
+
+
+def get_orcid(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None) -> str | None:
+    """Get the ORCID."""
+    return get_property(
+        item,
+        "P496",
+        timeout=timeout,
+        endpoint=endpoint,
+    )
+
+
+def get_property(
+    item: str, prop: str, *, timeout: TimeoutHint = None, endpoint: str | None = None
+) -> str | None:
+    """Get the value for the property."""
+    if not WIKIDATA_ITEM_REGEX.match(item):
+        raise ValueError(f"Wikidata item '{item}' is not valid under {WIKIDATA_ITEM_REGEX}.")
+
+    sparql = dedent(f"""\
+        SELECT ?value WHERE {{
+          wd:{item} wdt:{prop} ?value .
+        }}
+        LIMIT 1
+    """)
+    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    if not records:
+        return None
+    return cast(str, records[0]["value"])
