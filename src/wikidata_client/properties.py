@@ -8,6 +8,7 @@ from .constants import TimeoutHint
 __all__ = [
     "get_entity_by_arxiv",
     "get_entity_by_biorxiv",
+    "get_entity_by_github",
     "get_entity_by_orcid",
     "get_entity_by_property",
     "get_entity_by_pubchem_compound",
@@ -30,6 +31,22 @@ def get_entity_by_orcid(
     'Q47475003'
     """
     return get_entity_by_property("P496", orcid, timeout=timeout, endpoint=endpoint)
+
+
+def get_entity_by_github(
+    github: str, *, timeout: TimeoutHint = None, endpoint: str | None = None
+) -> str | None:
+    """Get an entity by its GitHub username.
+
+    :param github: A GitHub identifier
+    :param timeout: The optional timeout
+    :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+    :returns: The Wikidata item's QID, if it can be found
+
+    >>> get_entity_by_github("cthoyt")
+    'Q47475003'
+    """
+    return get_entity_by_property("P2037", github, timeout=timeout, endpoint=endpoint)
 
 
 def get_entity_by_pubchem_compound(
