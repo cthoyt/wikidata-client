@@ -1,5 +1,6 @@
-Command Line Interface
-======================
+########################
+ Command Line Interface
+########################
 
 wikidata_client automatically installs the command ``wikidata_client``. See
 ``wikidata_client --help`` for usage details.

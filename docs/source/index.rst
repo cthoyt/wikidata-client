@@ -1,5 +1,6 @@
-Wikidata Client |release| Documentation
-=======================================
+#########################################
+ Wikidata Client |release| Documentation
+#########################################
 
 .. toctree::
     :maxdepth: 2
@@ -10,8 +11,9 @@ Wikidata Client |release| Documentation
     usage
     cli
 
-Indices and Tables
-------------------
+********************
+ Indices and Tables
+********************
 
 - :ref:`genindex`
 - :ref:`modindex`
