@@ -126,8 +126,9 @@ def get_entity_by_pubmed(
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
     :returns: The Wikidata item's QID, if it can be found
 
-    >>> get_entity_by_pubmed("29029422")
-    'Q42371516'
+    .. warning::
+
+        because of the Wikidata split, this won't work with the default endpoint
     """
     return get_entity_by_property("P698", pubmed, timeout=timeout, endpoint=endpoint)
 
