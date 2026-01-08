@@ -44,7 +44,8 @@ def query(
     :param sparql: A SPARQL query string
     :param timeout: Number of seconds before timeout. Defaults to 10 seconds.
     :param endpoint: The SPARQL service base URL.
-    :return: A list of bindings
+
+    :returns: A list of bindings
     """
     if timeout is None:
         timeout = 10
@@ -72,14 +73,13 @@ def get_entity_by_property(
 ) -> str | None:
     """Get the Wikidata item's QID based on the given property and value.
 
-    :param prop:
-        The Wikidata property, starting with P. For example, ``P496``
-        is the ORCiD identifier property
-    :param value:
-        The value with the property. For example, ``0000-0003-4423-4370``
-        is the ORCiD identifier for ``Q47475003``
+    :param prop: The Wikidata property, starting with P. For example, ``P496`` is the
+        ORCiD identifier property
+    :param value: The value with the property. For example, ``0000-0003-4423-4370`` is
+        the ORCiD identifier for ``Q47475003``
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     >>> get_entity_by_property("P496", "0000-0003-4423-4370")
@@ -100,14 +100,13 @@ def get_entities_by_property(
 ) -> dict[str, str]:
     """Get the Wikidata item's QID based on the given property and value.
 
-    :param prop:
-        The Wikidata property, starting with P. For example, ``P496``
-        is the ORCiD identifier property
-    :param values:
-        The values with the property. For example, ``0000-0003-4423-4370``
-        is the ORCiD identifier for ``Q47475003``
+    :param prop: The Wikidata property, starting with P. For example, ``P496`` is the
+        ORCiD identifier property
+    :param values: The values with the property. For example, ``0000-0003-4423-4370`` is
+        the ORCiD identifier for ``Q47475003``
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     >>> get_entity_by_property("P496", "0000-0003-4423-4370")
@@ -131,9 +130,10 @@ def get_image(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = 
     :param item: The Wikidata identifier
     :param timeout: The number of seconds before timeout. Defaults to 10 seconds.
     :param endpoint: The SPARQL service base URL. Defaults to Wikidata's.
-    :return:
-        The URL for an image for the item, if it exists. If multiple images exist,
+
+    :returns: The URL for an image for the item, if it exists. If multiple images exist,
         arbitrarily return the first.
+
     :raises ValueError: If the item does not match the Wikidata item regular expression.
 
     >>> get_image("Q47475003")

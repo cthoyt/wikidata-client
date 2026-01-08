@@ -28,6 +28,7 @@ def get_entity_by_orcid(
     :param orcid: An ORCiD identifier
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     >>> get_entity_by_orcid("0000-0003-4423-4370")
@@ -44,6 +45,7 @@ def get_entities_by_orcid(
     :param orcids: A collection ORCiD identifies
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     >>> get_entities_by_orcid(["0000-0003-4423-4370"])
@@ -60,6 +62,7 @@ def get_entity_by_github(
     :param github: A GitHub identifier
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     >>> get_entity_by_github("cthoyt")
@@ -76,6 +79,7 @@ def get_entity_by_pubchem_compound(
     :param pubchem_compound_id: A PubChem Compound identifier
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     >>> get_entity_by_pubchem_compound("14123361")
@@ -92,6 +96,7 @@ def get_entity_by_arxiv(
     :param arxiv_id: An arXiv identifier
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     .. warning::
@@ -109,6 +114,7 @@ def get_entity_by_biorxiv(
     :param biorxiv_id: An bioRxiv identifier
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     .. warning::
@@ -126,6 +132,7 @@ def get_entity_by_pubmed(
     :param pubmed: An PubMed identifier
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     .. warning::
@@ -143,6 +150,7 @@ def get_entity_by_ror(
     :param ror: An ROR identifier
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+
     :returns: The Wikidata item's QID, if it can be found
 
     >>> get_entity_by_ror("038321296")

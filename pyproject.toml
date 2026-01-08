@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build>=0.6.6,<1.0"]
+requires = ["uv_build>=0.9.6,<1.0"]
 build-backend = "uv_build"
 
 [project]
@@ -31,6 +31,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3 :: Only",
     "Typing :: Typed",
     # TODO add your topics from the Trove controlled vocabulary (see https://pypi.org/classifiers)
@@ -72,6 +73,7 @@ typing = [
     { include-group = "tests" },
     "mypy",
     "pydantic",
+    "click-types",
     "types-requests",
 ]
 docs-lint = [
@@ -95,8 +97,8 @@ bump = [
     "bump-my-version",
 ]
 build = [
-    "uv",
-    "uv-build",
+    "uv>=0.9.6",
+    "uv-build>=0.9.6",
 ]
 release = [
     { include-group = "build" },
