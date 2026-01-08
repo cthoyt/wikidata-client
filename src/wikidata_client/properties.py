@@ -38,7 +38,7 @@ def get_entity_by_orcid(
 
 def get_entities_by_orcid(
     orcids: Collection[str], *, timeout: TimeoutHint = None, endpoint: str | None = None
-) -> str | None:
+) -> dict[str, str]:
     """Get an entity by its ORCiD identifier.
 
     :param orcids: A collection ORCiD identifies
@@ -49,7 +49,7 @@ def get_entities_by_orcid(
     >>> get_entities_by_orcid(["0000-0003-4423-4370"])
     {'0000-0003-4423-4370': 'Q47475003'}
     """
-    return get_entities_by_property("P496", orcid, timeout=timeout, endpoint=endpoint)
+    return get_entities_by_property("P496", orcids, timeout=timeout, endpoint=endpoint)
 
 
 def get_entity_by_github(

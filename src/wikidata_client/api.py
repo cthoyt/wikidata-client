@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Iterable, Mapping
 from textwrap import dedent
 from typing import Any, Literal, cast, overload
 
@@ -24,6 +24,7 @@ __all__ = [
     "get_image",
     "get_label",
     "get_orcid",
+    "get_orcids",
     "get_properties",
     "get_property",
     "query",
@@ -95,15 +96,15 @@ def get_entity_by_property(
 
 
 def get_entities_by_property(
-    prop: str, values: str, *, timeout: TimeoutHint = None, endpoint: str | None = None
-) -> str | None:
+    prop: str, values: Iterable[str], *, timeout: TimeoutHint = None, endpoint: str | None = None
+) -> dict[str, str]:
     """Get the Wikidata item's QID based on the given property and value.
 
     :param prop:
         The Wikidata property, starting with P. For example, ``P496``
         is the ORCiD identifier property
-    :param value:
-        The value with the property. For example, ``0000-0003-4423-4370``
+    :param values:
+        The values with the property. For example, ``0000-0003-4423-4370``
         is the ORCiD identifier for ``Q47475003``
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
@@ -115,11 +116,13 @@ def get_entities_by_property(
     if not WIKIDATA_PROP_REGEX.match(prop):
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
 
-    sparql = f'SELECT ?item WHERE {{ ?item wdt:{prop} "{value}" . }} LIMIT 1'
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
-    if not records:
-        return None
-    return cast(str, records[0]["item"])
+    # TODO there should be a massive SPARQL-based query improvement
+    return {
+        value: wikidata_id
+        for value in values
+        if (wikidata_id := get_entity_by_property(prop, value, timeout=timeout, endpoint=endpoint))
+        is not None
+    }
 
 
 def get_image(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None) -> str | None:
@@ -184,6 +187,19 @@ def get_orcid(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = 
     )
 
 
+def get_orcids(
+    wikidata_ids: Collection[str], *, timeout: TimeoutHint = None, endpoint: str | None = None
+) -> dict[str, str]:
+    """Get the ORCIDs for multiple Wikidata records."""
+    return get_properties(
+        wikidata_ids,
+        "P496",
+        single_value=True,
+        timeout=timeout,
+        endpoint=endpoint,
+    )
+
+
 def get_property(
     item: str, prop: str, *, timeout: TimeoutHint = None, endpoint: str | None = None
 ) -> str | None:
@@ -203,6 +219,7 @@ def get_property(
     return cast(str, records[0]["value"])
 
 
+# docstr-coverage:excused `overload`
 @overload
 def get_properties(
     items: Collection[str],
@@ -214,6 +231,7 @@ def get_properties(
 ) -> dict[str, str]: ...
 
 
+# docstr-coverage:excused `overload`
 @overload
 def get_properties(
     items: Collection[str],
