@@ -94,8 +94,9 @@ def get_entity_by_arxiv(
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
     :returns: The Wikidata item's QID, if it can be found
 
-    >>> get_entity_by_arxiv("1507.04180")
-    'Q27036443'
+    .. warning::
+
+        because of the Wikidata split, this won't work with the default endpoint
     """
     return get_entity_by_property("P818", arxiv_id, timeout=timeout, endpoint=endpoint)
 
@@ -110,8 +111,9 @@ def get_entity_by_biorxiv(
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
     :returns: The Wikidata item's QID, if it can be found
 
-    >>> get_entity_by_biorxiv("2020.08.20.259226")
-    'Q104920313'
+    .. warning::
+
+        because of the Wikidata split, this won't work with the default endpoint
     """
     return get_entity_by_property("P3951", biorxiv_id, timeout=timeout, endpoint=endpoint)
 
