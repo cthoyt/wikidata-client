@@ -1,7 +1,17 @@
 """Interact with Wikidata programmatically."""
 
-from .api import get_entity_by_property, get_image, get_label, get_orcid, get_property, query
+from .api import (
+    get_entities_by_property,
+    get_entity_by_property,
+    get_image,
+    get_label,
+    get_orcid,
+    get_properties,
+    get_property,
+    query,
+)
 from .properties import (
+    get_entities_by_orcid,
     get_entity_by_arxiv,
     get_entity_by_biorxiv,
     get_entity_by_github,
@@ -12,6 +22,8 @@ from .properties import (
 )
 
 __all__ = [
+    "get_entities_by_orcid",
+    "get_entities_by_property",
     "get_entity_by_arxiv",
     "get_entity_by_biorxiv",
     "get_entity_by_github",
@@ -23,6 +35,7 @@ __all__ = [
     "get_image",
     "get_label",
     "get_orcid",
+    "get_properties",
     "get_property",
     "query",
 ]
