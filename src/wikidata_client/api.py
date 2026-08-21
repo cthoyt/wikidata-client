@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Mapping
 from textwrap import dedent
-from typing import Any, Literal, cast, overload
+from typing import Any, Literal, NotRequired, TypedDict, Unpack, cast, overload
 
 import requests
 
@@ -38,6 +38,13 @@ HEADERS = {
 }
 
 
+class QueryKwargs(TypedDict):
+    """Keyword arguments for :func:`query`."""
+
+    timeout: NotRequired[TimeoutHint]
+    endpoint: NotRequired[str | None]
+
+
 def query(
     sparql: str, *, timeout: TimeoutHint = None, endpoint: str | None = None
 ) -> list[Mapping[str, Any]]:
@@ -68,26 +75,24 @@ def query(
 def query_dict(
     sparql: str,
     *,
-    timeout: TimeoutHint = None,
-    endpoint: str | None = None,
     key: str = "k",
     value: str = "v",
+    **kwargs: Unpack[QueryKwargs],
 ) -> dict[str, str]:
     """Query Wikidata's SPARQL service and shuttle into a dictionary."""
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    records = query(sparql, **kwargs)
     return {record[key]: record[value] for record in records}
 
 
 def query_multidict(
     sparql: str,
     *,
-    timeout: TimeoutHint = None,
-    endpoint: str | None = None,
     key: str = "k",
     value: str = "v",
+    **kwargs: Unpack[QueryKwargs],
 ) -> dict[str, set[str]]:
     """Query Wikidata's SPARQL service and shuttle into a dictionary of sets."""
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    records = query(sparql, **kwargs)
     rv: defaultdict[str, set[str]] = defaultdict(set)
     for record in records:
         rv[record[key]].add(record[value])
@@ -99,9 +104,7 @@ def _clean_value(value: str) -> str:
     return value
 
 
-def get_entity_by_property(
-    prop: str, value: str, *, timeout: TimeoutHint = None, endpoint: str | None = None
-) -> str | None:
+def get_entity_by_property(prop: str, value: str, **kwargs: Unpack[QueryKwargs]) -> str | None:
     """Get the Wikidata item's QID based on the given property and value.
 
     :param prop: The Wikidata property, starting with P. For example, ``P496`` is the
@@ -120,14 +123,14 @@ def get_entity_by_property(
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
 
     sparql = f'SELECT ?item WHERE {{ ?item wdt:{prop} "{value}" . }} LIMIT 1'
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    records = query(sparql, **kwargs)
     if not records:
         return None
     return cast(str, records[0]["item"])
 
 
 def get_entities_by_property(
-    prop: str, values: Iterable[str], *, timeout: TimeoutHint = None, endpoint: str | None = None
+    prop: str, values: Iterable[str], **kwargs: Unpack[QueryKwargs]
 ) -> dict[str, str]:
     """Get multiple Wikidata item's based on a property and values.
 
@@ -150,10 +153,10 @@ def get_entities_by_property(
           ?v wdt:{prop} ?k
         }}
     """)
-    return query_dict(sparql, timeout=timeout, endpoint=endpoint)
+    return query_dict(sparql, **kwargs)
 
 
-def get_image(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None) -> str | None:
+def get_image(item: str, **kwargs: Unpack[QueryKwargs]) -> str | None:
     """Get a URL for an image for the Wikibase item, if it exists.
 
     :param item: The Wikidata identifier
@@ -180,15 +183,13 @@ def get_image(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = 
         }}
         LIMIT 1
     """)
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    records = query(sparql, **kwargs)
     if not records:
         return None
     return cast(str, records[0]["imageLabel"])
 
 
-def get_label(
-    item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None, language: str = "en"
-) -> str | None:
+def get_label(item: str, *, language: str = "en", **kwargs: Unpack[QueryKwargs]) -> str | None:
     """Get the label."""
     if not WIKIDATA_ITEM_REGEX.match(item):
         raise ValueError(f"Wikidata item '{item}' is not valid under {WIKIDATA_ITEM_REGEX}.")
@@ -200,38 +201,23 @@ def get_label(
         }}
         LIMIT 1
     """)
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    records = query(sparql, **kwargs)
     if not records:
         return None
     return cast(str, records[0]["label"])
 
 
-def get_orcid(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None) -> str | None:
+def get_orcid(item: str, **kwargs: Unpack[QueryKwargs]) -> str | None:
     """Get the ORCID."""
-    return get_property(
-        item,
-        "P496",
-        timeout=timeout,
-        endpoint=endpoint,
-    )
+    return get_property(item, "P496", **kwargs)
 
 
-def get_orcids(
-    wikidata_ids: Collection[str], *, timeout: TimeoutHint = None, endpoint: str | None = None
-) -> dict[str, str]:
+def get_orcids(wikidata_ids: Collection[str], **kwargs: Unpack[QueryKwargs]) -> dict[str, str]:
     """Get the ORCIDs for multiple Wikidata records."""
-    return get_properties(
-        wikidata_ids,
-        "P496",
-        single_value=True,
-        timeout=timeout,
-        endpoint=endpoint,
-    )
+    return get_properties(wikidata_ids, "P496", single_value=True, **kwargs)
 
 
-def get_property(
-    item: str, prop: str, *, timeout: TimeoutHint = None, endpoint: str | None = None
-) -> str | None:
+def get_property(item: str, prop: str, **kwargs: Unpack[QueryKwargs]) -> str | None:
     """Get the value for the property."""
     if not WIKIDATA_ITEM_REGEX.match(item):
         raise ValueError(f"Wikidata item '{item}' is not valid under {WIKIDATA_ITEM_REGEX}.")
@@ -242,7 +228,7 @@ def get_property(
         }}
         LIMIT 1
     """)
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    records = query(sparql, **kwargs)
     if not records:
         return None
     return cast(str, records[0]["value"])
@@ -254,9 +240,8 @@ def get_properties(
     items: str | Collection[str],
     prop: str,
     *,
-    timeout: TimeoutHint = None,
-    endpoint: str | None = ...,
     single_value: Literal[True] = ...,
+    **kwargs: Unpack[QueryKwargs],
 ) -> dict[str, str]: ...
 
 
@@ -266,9 +251,8 @@ def get_properties(
     items: str | Collection[str],
     prop: str,
     *,
-    timeout: TimeoutHint = None,
-    endpoint: str | None = ...,
     single_value: Literal[False] = ...,
+    **kwargs: Unpack[QueryKwargs],
 ) -> dict[str, set[str]]: ...
 
 
@@ -276,9 +260,8 @@ def get_properties(
     items: str | Collection[str],
     prop: str,
     *,
-    timeout: TimeoutHint = None,
-    endpoint: str | None = None,
     single_value: bool = True,
+    **kwargs: Unpack[QueryKwargs],
 ) -> dict[str, str] | dict[str, set[str]]:
     """Get the value for the property for multiple entities."""
     if not WIKIDATA_PROP_REGEX.match(prop):
@@ -292,9 +275,9 @@ def get_properties(
         }}
     """)
     if single_value:
-        return query_dict(sparql, timeout=timeout, endpoint=endpoint)
+        return query_dict(sparql, **kwargs)
     else:
-        return query_multidict(sparql, timeout=timeout, endpoint=endpoint)
+        return query_multidict(sparql, **kwargs)
 
 
 def _values_for_sparql(wikidata_ids: Collection[str]) -> str:

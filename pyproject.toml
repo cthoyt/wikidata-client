@@ -37,7 +37,9 @@ classifiers = [
 keywords = [
     "snekpack", # please keep this keyword to credit the cookiecutter-snekpack template
     "cookiecutter",
-    # TODO add your own free-text keywords
+    "wikidata",
+    "wikibase",
+    "sparql",
 ]
 
 # License Information.
