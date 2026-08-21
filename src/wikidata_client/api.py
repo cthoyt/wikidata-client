@@ -113,7 +113,7 @@ def get_entities_by_property(
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
     _vals = " ".join(f'"{value}"' for value in values)
     sparql = dedent(f"""\
-        SELECT ?s
+        SELECT ?o ?s
         WHERE {{
           VALUES ?o {{ {_vals} }}
           ?s wdt:{prop} ?o
