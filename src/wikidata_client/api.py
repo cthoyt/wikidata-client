@@ -28,6 +28,8 @@ __all__ = [
     "get_properties",
     "get_property",
     "query",
+    "query_dict",
+    "query_multidict",
 ]
 
 USER_AGENT = f"{USER_AGENT_NAME} v{get_version()}"
@@ -61,6 +63,35 @@ def query(
         {key: _clean_value(value["value"]) for key, value in record.items()}
         for record in res_json["results"]["bindings"]
     ]
+
+
+def query_dict(
+    sparql: str,
+    *,
+    timeout: TimeoutHint = None,
+    endpoint: str | None = None,
+    key: str = "k",
+    value: str = "v",
+) -> dict[str, str]:
+    """Query Wikidata's SPARQL service and shuttle into a dictionary."""
+    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    return {record[key]: record[value] for record in records}
+
+
+def query_multidict(
+    sparql: str,
+    *,
+    timeout: TimeoutHint = None,
+    endpoint: str | None = None,
+    key: str = "k",
+    value: str = "v",
+) -> dict[str, set[str]]:
+    """Query Wikidata's SPARQL service and shuttle into a dictionary of sets."""
+    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    rv: defaultdict[str, set[str]] = defaultdict(set)
+    for record in records:
+        rv[record[key]].add(record[value])
+    return dict(rv)
 
 
 def _clean_value(value: str) -> str:
@@ -113,14 +144,13 @@ def get_entities_by_property(
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
     _vals = " ".join(f'"{value}"' for value in values)
     sparql = dedent(f"""\
-        SELECT ?o ?s
+        SELECT ?k ?v
         WHERE {{
-          VALUES ?o {{ {_vals} }}
-          ?s wdt:{prop} ?o
+          VALUES ?k {{ {_vals} }}
+          ?v wdt:{prop} ?k
         }}
     """)
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
-    return {record["o"]: record["s"] for record in records}
+    return query_dict(sparql, timeout=timeout, endpoint=endpoint)
 
 
 def get_image(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None) -> str | None:
@@ -255,20 +285,15 @@ def get_properties(
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
 
     sparql = dedent(f"""\
-        SELECT ?s ?o WHERE {{
+        SELECT ?k ?v WHERE {{
             VALUES ?s {{ {_values_for_sparql(items)} }}
-            ?s wdt:{prop} ?o .
+            ?k wdt:{prop} ?v .
         }}
     """)
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
-
     if single_value:
-        return {record["s"]: record["o"] for record in records}
+        return query_dict(sparql, timeout=timeout, endpoint=endpoint)
     else:
-        rv: defaultdict[str, set[str]] = defaultdict(set)
-        for record in records:
-            rv[record["s"]].add(record["o"])
-        return dict(rv)
+        return query_multidict(sparql, timeout=timeout, endpoint=endpoint)
 
 
 def _values_for_sparql(wikidata_ids: Collection[str]) -> str:

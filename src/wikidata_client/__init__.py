@@ -10,6 +10,8 @@ from .api import (
     get_properties,
     get_property,
     query,
+    query_dict,
+    query_multidict,
 )
 from .properties import (
     get_entities_by_orcid,
@@ -40,4 +42,6 @@ __all__ = [
     "get_properties",
     "get_property",
     "query",
+    "query_dict",
+    "query_multidict",
 ]
