@@ -98,7 +98,7 @@ def get_entity_by_property(
 def get_entities_by_property(
     prop: str, values: Iterable[str], *, timeout: TimeoutHint = None, endpoint: str | None = None
 ) -> dict[str, str]:
-    """Get multiple Wikidata item's based on a property and values
+    """Get multiple Wikidata item's based on a property and values.
 
     :param prop: The Wikidata property, starting with P. For example, ``P496`` is the
         ORCiD identifier property
@@ -113,17 +113,14 @@ def get_entities_by_property(
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
     _vals = " ".join(f'"{value}"' for value in values)
     sparql = dedent(f"""\
-        SELECT ?s 
+        SELECT ?s
         WHERE {{
           VALUES ?o {{ {_vals} }}
           ?s wdt:{prop} ?o
         }}
     """)
     records = query(sparql, timeout=timeout, endpoint=endpoint)
-    return {
-        record['o']: record['s']
-        for record in records
-    }
+    return {record["o"]: record["s"] for record in records}
 
 
 def get_image(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None) -> str | None:
