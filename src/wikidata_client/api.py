@@ -142,11 +142,11 @@ def get_entities_by_property(
     """
     if not WIKIDATA_PROP_REGEX.match(prop):
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
-    _vals = " ".join(f'"{value}"' for value in values)
+    keys = " ".join(f'"{key}"' for key in values)
     sparql = dedent(f"""\
         SELECT ?k ?v
         WHERE {{
-          VALUES ?k {{ {_vals} }}
+          VALUES ?k {{ {keys} }}
           ?v wdt:{prop} ?k
         }}
     """)
@@ -251,7 +251,7 @@ def get_property(
 # docstr-coverage:excused `overload`
 @overload
 def get_properties(
-    items: Collection[str],
+    items: str | Collection[str],
     prop: str,
     *,
     timeout: TimeoutHint = None,
@@ -263,7 +263,7 @@ def get_properties(
 # docstr-coverage:excused `overload`
 @overload
 def get_properties(
-    items: Collection[str],
+    items: str | Collection[str],
     prop: str,
     *,
     timeout: TimeoutHint = None,
@@ -273,20 +273,21 @@ def get_properties(
 
 
 def get_properties(
-    items: Collection[str],
+    items: str | Collection[str],
     prop: str,
     *,
     timeout: TimeoutHint = None,
     endpoint: str | None = None,
     single_value: bool = True,
 ) -> dict[str, str] | dict[str, set[str]]:
-    """Get the value for the property for multime entities."""
+    """Get the value for the property for multiple entities."""
     if not WIKIDATA_PROP_REGEX.match(prop):
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
-
+    if isinstance(items, str):
+        items = [items]
     sparql = dedent(f"""\
         SELECT ?k ?v WHERE {{
-            VALUES ?s {{ {_values_for_sparql(items)} }}
+            VALUES ?k {{ {_values_for_sparql(items)} }}
             ?k wdt:{prop} ?v .
         }}
     """)
