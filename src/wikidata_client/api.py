@@ -28,6 +28,8 @@ __all__ = [
     "get_properties",
     "get_property",
     "query",
+    "query_dict",
+    "query_multidict",
 ]
 
 USER_AGENT = f"{USER_AGENT_NAME} v{get_version()}"
@@ -61,6 +63,35 @@ def query(
         {key: _clean_value(value["value"]) for key, value in record.items()}
         for record in res_json["results"]["bindings"]
     ]
+
+
+def query_dict(
+    sparql: str,
+    *,
+    timeout: TimeoutHint = None,
+    endpoint: str | None = None,
+    key: str = "k",
+    value: str = "v",
+) -> dict[str, str]:
+    """Query Wikidata's SPARQL service and shuttle into a dictionary."""
+    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    return {record[key]: record[value] for record in records}
+
+
+def query_multidict(
+    sparql: str,
+    *,
+    timeout: TimeoutHint = None,
+    endpoint: str | None = None,
+    key: str = "k",
+    value: str = "v",
+) -> dict[str, set[str]]:
+    """Query Wikidata's SPARQL service and shuttle into a dictionary of sets."""
+    records = query(sparql, timeout=timeout, endpoint=endpoint)
+    rv: defaultdict[str, set[str]] = defaultdict(set)
+    for record in records:
+        rv[record[key]].add(record[value])
+    return dict(rv)
 
 
 def _clean_value(value: str) -> str:
@@ -98,7 +129,7 @@ def get_entity_by_property(
 def get_entities_by_property(
     prop: str, values: Iterable[str], *, timeout: TimeoutHint = None, endpoint: str | None = None
 ) -> dict[str, str]:
-    """Get the Wikidata item's QID based on the given property and value.
+    """Get multiple Wikidata item's based on a property and values.
 
     :param prop: The Wikidata property, starting with P. For example, ``P496`` is the
         ORCiD identifier property
@@ -107,21 +138,19 @@ def get_entities_by_property(
     :param timeout: The optional timeout
     :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
 
-    :returns: The Wikidata item's QID, if it can be found
-
-    >>> get_entity_by_property("P496", "0000-0003-4423-4370")
-    'Q47475003'
+    :returns: A dictionary from values to Wikidata QIDs
     """
     if not WIKIDATA_PROP_REGEX.match(prop):
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
-
-    # TODO there should be a massive SPARQL-based query improvement
-    return {
-        value: wikidata_id
-        for value in values
-        if (wikidata_id := get_entity_by_property(prop, value, timeout=timeout, endpoint=endpoint))
-        is not None
-    }
+    keys = " ".join(f'"{key}"' for key in values)
+    sparql = dedent(f"""\
+        SELECT ?k ?v
+        WHERE {{
+          VALUES ?k {{ {keys} }}
+          ?v wdt:{prop} ?k
+        }}
+    """)
+    return query_dict(sparql, timeout=timeout, endpoint=endpoint)
 
 
 def get_image(item: str, *, timeout: TimeoutHint = None, endpoint: str | None = None) -> str | None:
@@ -222,7 +251,7 @@ def get_property(
 # docstr-coverage:excused `overload`
 @overload
 def get_properties(
-    items: Collection[str],
+    items: str | Collection[str],
     prop: str,
     *,
     timeout: TimeoutHint = None,
@@ -234,7 +263,7 @@ def get_properties(
 # docstr-coverage:excused `overload`
 @overload
 def get_properties(
-    items: Collection[str],
+    items: str | Collection[str],
     prop: str,
     *,
     timeout: TimeoutHint = None,
@@ -244,32 +273,28 @@ def get_properties(
 
 
 def get_properties(
-    items: Collection[str],
+    items: str | Collection[str],
     prop: str,
     *,
     timeout: TimeoutHint = None,
     endpoint: str | None = None,
     single_value: bool = True,
 ) -> dict[str, str] | dict[str, set[str]]:
-    """Get the value for the property for multime entities."""
+    """Get the value for the property for multiple entities."""
     if not WIKIDATA_PROP_REGEX.match(prop):
         raise ValueError(f"Wikidata property '{prop}' is not valid.")
-
+    if isinstance(items, str):
+        items = [items]
     sparql = dedent(f"""\
-        SELECT ?s ?o WHERE {{
-            VALUES ?s {{ {_values_for_sparql(items)} }}
-            ?s wdt:{prop} ?o .
+        SELECT ?k ?v WHERE {{
+            VALUES ?k {{ {_values_for_sparql(items)} }}
+            ?k wdt:{prop} ?v .
         }}
     """)
-    records = query(sparql, timeout=timeout, endpoint=endpoint)
-
     if single_value:
-        return {record["s"]: record["o"] for record in records}
+        return query_dict(sparql, timeout=timeout, endpoint=endpoint)
     else:
-        rv: defaultdict[str, set[str]] = defaultdict(set)
-        for record in records:
-            rv[record["s"]].add(record["o"])
-        return dict(rv)
+        return query_multidict(sparql, timeout=timeout, endpoint=endpoint)
 
 
 def _values_for_sparql(wikidata_ids: Collection[str]) -> str:
