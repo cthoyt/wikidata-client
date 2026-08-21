@@ -17,7 +17,8 @@ class TestAPI(unittest.TestCase):
 
     def test_get_label(self) -> None:
         """Test getting a label."""
-        self.assertEqual("Douglas Adams", get_label("Q42", language="en"))
+        self.assertEqual("Douglas Adams", get_label("Q42", language="mul"))
+        self.assertEqual("Eiffel Tower", get_label("Q243", language="en"))
 
     def test_orcid(self) -> None:
         """Test getting a ORCiD."""
