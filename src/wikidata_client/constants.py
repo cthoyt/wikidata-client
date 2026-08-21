@@ -15,7 +15,7 @@ __all__ = [
 USER_AGENT_NAME = "python-wikidata-client"
 
 #: #: A type hint for the timeout in :func:`requests.get`
-TimeoutHint: TypeAlias = None | int | float | tuple[float | int, float | int]
+TimeoutHint: TypeAlias = int | float | tuple[float | int, float | int] | None
 
 WIKIDATA_ITEM_REGEX = re.compile(r"^Q[1-9]\d+$")
 WIKIDATA_PROP_REGEX = re.compile(r"^P[1-9]\d+$")
