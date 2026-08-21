@@ -41,7 +41,9 @@ HEADERS = {
 class QueryKwargs(TypedDict):
     """Keyword arguments for :func:`query`."""
 
+    #: Number of seconds before timeout. Defaults to 10 seconds.
     timeout: NotRequired[TimeoutHint]
+    #: The SPARQL service base URL. Defaults to :data:`WIKIDATA_ENDPOINT`
     endpoint: NotRequired[str | None]
 
 
@@ -111,8 +113,8 @@ def get_entity_by_property(prop: str, value: str, **kwargs: Unpack[QueryKwargs])
         ORCiD identifier property
     :param value: The value with the property. For example, ``0000-0003-4423-4370`` is
         the ORCiD identifier for ``Q47475003``
-    :param timeout: The optional timeout
-    :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+    :param kwargs: Keyword arguments to pass to :func:`query` such as ``timeout`` and
+        ``endpoint``
 
     :returns: The Wikidata item's QID, if it can be found
 
@@ -138,8 +140,8 @@ def get_entities_by_property(
         ORCiD identifier property
     :param values: The values with the property. For example, ``0000-0003-4423-4370`` is
         the ORCiD identifier for ``Q47475003``
-    :param timeout: The optional timeout
-    :param endpoint: The endpoint, defaults to :data:`WIKIDATA_ENDPOINT`
+    :param kwargs: Keyword arguments to pass to :func:`query` such as ``timeout`` and
+        ``endpoint``
 
     :returns: A dictionary from values to Wikidata QIDs
     """
@@ -160,8 +162,8 @@ def get_image(item: str, **kwargs: Unpack[QueryKwargs]) -> str | None:
     """Get a URL for an image for the Wikibase item, if it exists.
 
     :param item: The Wikidata identifier
-    :param timeout: The number of seconds before timeout. Defaults to 10 seconds.
-    :param endpoint: The SPARQL service base URL. Defaults to Wikidata's.
+    :param kwargs: Keyword arguments to pass to :func:`query` such as ``timeout`` and
+        ``endpoint``
 
     :returns: The URL for an image for the item, if it exists. If multiple images exist,
         arbitrarily return the first.
