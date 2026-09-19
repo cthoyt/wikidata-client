@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Collection, Iterable, Mapping
+from collections.abc import Iterable, Mapping
 from textwrap import dedent
 from typing import Any, Literal, NotRequired, TypedDict, Unpack, cast, overload
 
@@ -215,7 +215,7 @@ def get_orcid(item: str, **kwargs: Unpack[QueryKwargs]) -> str | None:
     return get_property(item, "P496", **kwargs)
 
 
-def get_orcids(wikidata_ids: Collection[str], **kwargs: Unpack[QueryKwargs]) -> dict[str, str]:
+def get_orcids(wikidata_ids: str | Iterable[str], **kwargs: Unpack[QueryKwargs]) -> dict[str, str]:
     """Get the ORCIDs for multiple Wikidata records."""
     return get_properties(wikidata_ids, "P496", single_value=True, **kwargs)
 
@@ -240,7 +240,7 @@ def get_property(item: str, prop: str, **kwargs: Unpack[QueryKwargs]) -> str | N
 # docstr-coverage:excused `overload`
 @overload
 def get_properties(
-    items: str | Collection[str],
+    items: str | Iterable[str],
     prop: str,
     *,
     single_value: Literal[True] = ...,
@@ -251,7 +251,7 @@ def get_properties(
 # docstr-coverage:excused `overload`
 @overload
 def get_properties(
-    items: str | Collection[str],
+    items: str | Iterable[str],
     prop: str,
     *,
     single_value: Literal[False] = ...,
@@ -260,7 +260,7 @@ def get_properties(
 
 
 def get_properties(
-    items: str | Collection[str],
+    items: str | Iterable[str],
     prop: str,
     *,
     single_value: bool = True,
@@ -283,5 +283,5 @@ def get_properties(
         return query_multidict(sparql, **kwargs)
 
 
-def _values_for_sparql(wikidata_ids: Collection[str]) -> str:
+def _values_for_sparql(wikidata_ids: Iterable[str]) -> str:
     return " ".join("wd:" + x for x in sorted(wikidata_ids))
