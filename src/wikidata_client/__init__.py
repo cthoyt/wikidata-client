@@ -1,6 +1,7 @@
 """Interact with Wikidata programmatically."""
 
 from .api import (
+    QueryKwargs,
     get_entities_by_property,
     get_entity_by_property,
     get_image,
@@ -25,6 +26,7 @@ from .properties import (
 )
 
 __all__ = [
+    "QueryKwargs",
     "get_entities_by_orcid",
     "get_entities_by_property",
     "get_entity_by_arxiv",

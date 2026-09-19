@@ -19,6 +19,7 @@ from .constants import (
 from .version import get_version
 
 __all__ = [
+    "QueryKwargs",
     "get_entities_by_property",
     "get_entity_by_property",
     "get_image",
